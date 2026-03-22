@@ -1,5 +1,4 @@
-# URL Shortener with Advanced Analytics
-
+# URL Shortener 
 A premium, full-stack web application where authenticated users can forge magic tracking links with enterprise-level settings. Features include custom aliases, deep-dive graphical analytics, password-protection, self-destructing expiration dates, and automatically generated high-res QR codes.
 
 ## 1. Project Overview
@@ -116,15 +115,6 @@ root/
 │   └── package.json
 └── README.md
 ```
-
-## 8. Demo Instructions
-
-### Recording your Loom/YouTube Hackathon Pitch
-1. **The Hook (0s - 15s):** Start strong. Introduce yourself and explain your project stands above traditional URL shorteners because of enterprise features (Encryption, Expiry dates, physical QR bridges).
-2. **Dashboard & Auth (15s - 45s):** Briefly show the beautiful glassmorphism UI login system. Load the vault dashboard showing existing populated links to show scalable state logic. 
-3. **Advanced Forging (45s - 1m 30s):** Create a long URL. Specifically, toggle **"Advanced Settings"**. Assign it a custom alias along with a definitive Password and an Expiration Date. Create the link.
-4. **The Security Demo (1m 30s - 2m 15s):** Click the new link itself! Prove that you are seamlessly rerouted to your frontend `Unlock` page shield. Type the password in real-time, click submit, and smoothly watch the React transition fade out into the true original destination!
-5. **Analytics & QR (2m 15s - 3m 00s):** Jump to your Analytics deep-dive to show the Neon Chart.js telemetry logging. Lastly, return to the dashboard, hit the QR code button, pull out your physical mobile phone, and scan it directly off your Loom presentation screen to prove your API connects across Local Area Networks!
 
 ---
 This project is a proudly built submission for a hackathon run by https://katomaran.com
