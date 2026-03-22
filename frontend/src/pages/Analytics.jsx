@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../services/api';
-import { ArrowLeft, Clock, MousePointerClick, CalendarDays, Activity } from 'lucide-react';
+import { ArrowLeft, Clock, MousePointerClick, CalendarDays, Activity, Smartphone, Monitor } from 'lucide-react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -143,46 +143,60 @@ const Analytics = () => {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="glass-card rounded-3xl p-6 relative overflow-hidden group">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-6 mb-8">
+        <div className="glass-card rounded-3xl p-5 relative overflow-hidden group">
           <div className="absolute -right-6 -top-6 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-colors"></div>
           <div className="flex items-start justify-between relative z-10">
             <div>
-              <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Total Impact</p>
-              <h3 className="text-4xl font-['Outfit'] font-bold text-white">{analytics.totalClicks}</h3>
-            </div>
-            <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
-              <MousePointerClick className="h-6 w-6" />
+              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-1">Impact</p>
+              <h3 className="text-3xl font-['Outfit'] font-bold text-white">{analytics.totalClicks}</h3>
             </div>
           </div>
+          <MousePointerClick className="absolute bottom-4 right-4 h-8 w-8 text-indigo-500/20" />
         </div>
 
-        <div className="glass-card rounded-3xl p-6 relative overflow-hidden group">
-          <div className="absolute -right-6 -top-6 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-colors"></div>
-          <div className="flex items-start justify-between relative z-10">
-            <div>
-              <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Last Interaction</p>
-              <h3 className="text-2xl font-['Outfit'] font-bold text-slate-200 mt-2 truncate max-w-[150px]" title={analytics.lastVisited ? new Date(analytics.lastVisited).toLocaleString() : 'Never'}>
-                {analytics.lastVisited ? new Date(analytics.lastVisited).toLocaleDateString() : 'Never'}
-              </h3>
-            </div>
-            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
-              <Clock className="h-6 w-6" />
-            </div>
-          </div>
-        </div>
-        
-        <div className="glass-card rounded-3xl p-6 relative overflow-hidden group">
+        <div className="glass-card rounded-3xl p-5 relative overflow-hidden group">
           <div className="absolute -right-6 -top-6 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl group-hover:bg-purple-500/20 transition-colors"></div>
           <div className="flex items-start justify-between relative z-10">
             <div>
-              <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Recent Heat</p>
-              <h3 className="text-4xl font-['Outfit'] font-bold text-white">{analytics.recentVisits?.length || 0}</h3>
-            </div>
-            <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.2)]">
-              <CalendarDays className="h-6 w-6" />
+              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-1">Recent</p>
+              <h3 className="text-3xl font-['Outfit'] font-bold text-white">{analytics.recentVisits?.length || 0}</h3>
             </div>
           </div>
+          <CalendarDays className="absolute bottom-4 right-4 h-8 w-8 text-purple-500/20" />
+        </div>
+
+        <div className="glass-card rounded-3xl p-5 relative overflow-hidden group">
+          <div className="absolute -right-6 -top-6 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-colors"></div>
+          <div className="flex items-start justify-between relative z-10">
+            <div>
+              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-1">Mobile</p>
+              <h3 className="text-3xl font-['Outfit'] font-bold text-white">{analytics.devices?.mobile || 0}</h3>
+            </div>
+          </div>
+          <Smartphone className="absolute bottom-4 right-4 h-8 w-8 text-emerald-500/20" />
+        </div>
+
+        <div className="glass-card rounded-3xl p-5 relative overflow-hidden group">
+          <div className="absolute -right-6 -top-6 w-32 h-32 bg-teal-500/10 rounded-full blur-2xl group-hover:bg-teal-500/20 transition-colors"></div>
+          <div className="flex items-start justify-between relative z-10">
+            <div>
+              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-1">Desktop</p>
+              <h3 className="text-3xl font-['Outfit'] font-bold text-white">{analytics.devices?.desktop || 0}</h3>
+            </div>
+          </div>
+          <Monitor className="absolute bottom-4 right-4 h-8 w-8 text-teal-500/20" />
+        </div>
+
+        <div className="col-span-2 lg:col-span-1 glass-card rounded-3xl p-5 relative overflow-hidden group">
+          <div className="absolute -right-6 -top-6 w-32 h-32 bg-rose-500/10 rounded-full blur-2xl group-hover:bg-rose-500/20 transition-colors"></div>
+          <div className="flex flex-col relative z-10 h-full justify-center">
+            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-1">Latest</p>
+            <h3 className="text-lg font-['Outfit'] font-bold text-slate-200 truncate" title={analytics.lastVisited ? new Date(analytics.lastVisited).toLocaleString() : 'Never'}>
+              {analytics.lastVisited ? new Date(analytics.lastVisited).toLocaleDateString() : 'Never'}
+            </h3>
+          </div>
+          <Clock className="absolute bottom-4 right-4 h-8 w-8 text-rose-500/20" />
         </div>
       </div>
 
@@ -263,7 +277,7 @@ const Analytics = () => {
                       {new Date(visit.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric'})}
                     </p>
                     <p className="text-xs text-indigo-400 font-medium mt-0.5 tracking-wide">
-                      {new Date(visit.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute:'2-digit', second:'2-digit' })}
+                      {new Date(visit.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute:'2-digit', second:'2-digit' })} • {visit.device || 'Unknown'}
                     </p>
                   </div>
                 </div>

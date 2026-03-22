@@ -37,6 +37,10 @@ const urlSchema = new mongoose.Schema({
     timestamp: {
       type: Date,
       default: Date.now
+    },
+    device: {
+      type: String,
+      default: 'Unknown'
     }
   }]
 });

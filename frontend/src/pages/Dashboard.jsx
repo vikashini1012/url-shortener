@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
 import { QRCodeSVG } from 'qrcode.react';
-import { Copy, Trash2, ExternalLink, BarChart2, Check, Sparkles, Link2, Lock, Calendar, QrCode, X } from 'lucide-react';
+import { Copy, Trash2, ExternalLink, BarChart2, Check, Sparkles, Link2, Lock, Calendar, QrCode, X, Edit3, Type, Layers, Globe } from 'lucide-react';
 
 const Dashboard = () => {
   const [urls, setUrls] = useState([]);
   const [loading, setLoading] = useState(true);
   
   // Form State
+  const [isBulkMode, setIsBulkMode] = useState(false);
   const [newUrl, setNewUrl] = useState('');
+  const [bulkUrls, setBulkUrls] = useState('');
   const [alias, setAlias] = useState('');
   const [password, setPassword] = useState('');
   const [expiresAt, setExpiresAt] = useState('');
@@ -20,8 +22,9 @@ const Dashboard = () => {
   const [copySuccess, setCopySuccess] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // QR Code Modal State
+  // Modal State
   const [activeQr, setActiveQr] = useState(null);
+  const [editingUrl, setEditingUrl] = useState(null);
 
   const fetchUrls = async () => {
     try {
@@ -45,25 +48,48 @@ const Dashboard = () => {
     setIsSubmitting(true);
 
     try {
-      if (!newUrl) throw new Error('Please enter a URL');
-      const payload = { originalUrl: newUrl };
-      if (alias) payload.alias = alias;
-      if (password) payload.password = password;
-      if (expiresAt) payload.expiresAt = expiresAt;
-      
-      const res = await api.post('/url/shorten', payload);
-      setUrls([res.data, ...urls]);
-      setNewUrl('');
-      setAlias('');
-      setPassword('');
-      setExpiresAt('');
-      setShowAdvanced(false);
-      setSuccess('Magic link generated perfectly!');
+      if (isBulkMode) {
+        if (!bulkUrls.trim()) throw new Error('Please enter URLs, separated by comma or new line');
+        const urlArray = bulkUrls.split(/[\n,]+/).map(i => i.trim()).filter(i => i);
+        
+        const res = await api.post('/url/bulk', { urls: urlArray });
+        setUrls([...res.data, ...urls]);
+        setSuccess(`Successfully generated ${res.data.length} links!`);
+        setBulkUrls('');
+      } else {
+        if (!newUrl) throw new Error('Please enter a URL');
+        const payload = { originalUrl: newUrl };
+        if (alias) payload.alias = alias;
+        if (password) payload.password = password;
+        if (expiresAt) payload.expiresAt = expiresAt;
+        
+        const res = await api.post('/url/shorten', payload);
+        setUrls([res.data, ...urls]);
+        setNewUrl('');
+        setAlias('');
+        setPassword('');
+        setExpiresAt('');
+        setShowAdvanced(false);
+        setSuccess('Magic link generated perfectly!');
+      }
       setTimeout(() => setSuccess(''), 4000);
     } catch (err) {
       setError(err.response?.data?.msg || err.message || 'An error occurred');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleEdit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await api.put(`/url/${editingUrl._id}`, { originalUrl: editingUrl.originalUrl });
+      setUrls(urls.map(u => u._id === editingUrl._id ? res.data : u));
+      setEditingUrl(null);
+      setSuccess('Destination updated');
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err) {
+      setError('Failed to update destination');
     }
   };
 
@@ -96,10 +122,9 @@ const Dashboard = () => {
       ctx.fillStyle = 'white';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(img, 0, 0);
-      const pngFile = canvas.toDataURL('image/png');
       const downloadLink = document.createElement('a');
       downloadLink.download = `qrcode-${activeQr.shortCode}.png`;
-      downloadLink.href = `${pngFile}`;
+      downloadLink.href = canvas.toDataURL('image/png');
       downloadLink.click();
     };
     img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
@@ -111,7 +136,6 @@ const Dashboard = () => {
 
   return (
     <div className="max-w-6xl mx-auto py-8 lg:py-12 animate-slide-up">
-      {/* Shorten Action Card */}
       <div className="glass-card rounded-3xl p-8 mb-10 relative overflow-hidden group">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-indigo-500/20 via-purple-500/5 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:opacity-100 opacity-60 transition-opacity duration-700 pointer-events-none"></div>
         
@@ -121,13 +145,25 @@ const Dashboard = () => {
               <Sparkles className="mr-3 text-indigo-400 h-8 w-8" />
               Create a Magic Link
             </h2>
-            <button 
-              type="button" 
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className="text-sm font-semibold text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 px-4 py-2 rounded-xl transition-colors"
-            >
-              {showAdvanced ? 'Hide Advanced Settings' : 'Advanced Settings'}
-            </button>
+            <div className="flex gap-3">
+              <button 
+                type="button" 
+                onClick={() => setIsBulkMode(!isBulkMode)}
+                className={`text-sm font-semibold hover:text-white px-4 py-2 rounded-xl transition-colors flex items-center gap-2 ${isBulkMode ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30' : 'bg-slate-800 text-slate-400'}`}
+              >
+                <Layers size={16} /> {isBulkMode ? 'Single Mode' : 'Bulk Mode'}
+              </button>
+              
+              {!isBulkMode && (
+                <button 
+                  type="button" 
+                  onClick={() => setShowAdvanced(!showAdvanced)}
+                  className="text-sm font-semibold text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 px-4 py-2 rounded-xl transition-colors hidden md:block"
+                >
+                  {showAdvanced ? 'Hide Advanced Settings' : 'Advanced Settings'}
+                </button>
+              )}
+            </div>
           </div>
           
           {(error || success) && (
@@ -140,57 +176,73 @@ const Dashboard = () => {
           )}
           
           <form onSubmit={handleShorten} className="flex flex-col gap-5">
-            <div className="flex flex-col md:flex-row gap-5 items-end">
-              <div className="w-full md:flex-1">
-                <label htmlFor="url" className="block text-sm font-semibold text-slate-400 mb-2 uppercase tracking-wider ml-1">
-                  Destination URL
-                </label>
-                <div className="relative group/input">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within/input:text-indigo-400 transition-colors">
-                    <Link2 className="h-5 w-5" />
-                  </div>
-                  <input
-                    type="url"
-                    id="url"
-                    placeholder="https://your-super-long-domain.com/path..."
-                    value={newUrl}
-                    onChange={(e) => setNewUrl(e.target.value)}
-                    className="glass-input pl-12 h-[52px]"
+            {isBulkMode ? (
+               <div className="w-full">
+                  <label htmlFor="bulk" className="block text-sm font-semibold text-slate-400 mb-2 uppercase tracking-wider ml-1">
+                    Paste Several URLs (comma or newline separated)
+                  </label>
+                  <textarea
+                    id="bulk"
+                    rows="4"
+                    placeholder="https://google.com&#10;https://facebook.com"
+                    value={bulkUrls}
+                    onChange={(e) => setBulkUrls(e.target.value)}
+                    className="glass-input p-4 w-full h-auto min-h-[120px]"
                     required
+                  ></textarea>
+               </div>
+            ) : (
+              <div className="flex flex-col md:flex-row gap-5 items-end">
+                <div className="w-full md:flex-1">
+                  <label htmlFor="url" className="block text-sm font-semibold text-slate-400 mb-2 uppercase tracking-wider ml-1">
+                    Destination URL
+                  </label>
+                  <div className="relative group/input">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within/input:text-indigo-400 transition-colors">
+                      <Link2 className="h-5 w-5" />
+                    </div>
+                    <input
+                      type="url"
+                      id="url"
+                      placeholder="https://your-super-long-domain.com/path..."
+                      value={newUrl}
+                      onChange={(e) => setNewUrl(e.target.value)}
+                      className="glass-input pl-12 h-[52px]"
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div className="w-full md:w-64">
+                  <label htmlFor="alias" className="block text-sm font-semibold text-slate-400 mb-2 uppercase tracking-wider ml-1">
+                    Custom Alias
+                  </label>
+                  <input
+                    type="text"
+                    id="alias"
+                    placeholder="my-campaign"
+                    value={alias}
+                    onChange={(e) => setAlias(e.target.value)}
+                    className="glass-input h-[52px]"
                   />
                 </div>
               </div>
-              
-              <div className="w-full md:w-64">
-                <label htmlFor="alias" className="block text-sm font-semibold text-slate-400 mb-2 uppercase tracking-wider ml-1">
-                  Custom Alias
-                </label>
-                <input
-                  type="text"
-                  id="alias"
-                  placeholder="my-campaign"
-                  value={alias}
-                  onChange={(e) => setAlias(e.target.value)}
-                  className="glass-input h-[52px]"
-                />
-              </div>
-              
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="btn-primary w-full md:w-auto h-[52px] min-w-[140px]"
-              >
-                {isSubmitting ? (
-                  <span className="flex items-center space-x-2">
-                    <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
-                    <span>Magic...</span>
-                  </span>
-                ) : 'Generate Link'}
-              </button>
-            </div>
+            )}
+            
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="btn-primary w-full md:w-auto h-[52px] md:self-end px-8"
+            >
+              {isSubmitting ? (
+                <span className="flex items-center space-x-2">
+                  <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
+                  <span>Magic...</span>
+                </span>
+              ) : (isBulkMode ? 'Bulk Generate Links' : 'Generate Link')}
+            </button>
 
-            {/* Advanced Filters */}
-            {showAdvanced && (
+            {!isBulkMode && showAdvanced && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 animate-slide-up border-t border-slate-700/50 pt-5 mt-2">
                 <div>
                   <label htmlFor="password" className="block text-sm font-semibold text-slate-400 mb-2 uppercase tracking-wider ml-1">
@@ -235,8 +287,10 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* URLs Table List */}
-      <h3 className="text-2xl font-bold text-white mb-6 font-['Outfit'] px-2">Your Vault</h3>
+      <div className="flex justify-between items-end mb-6 px-2">
+         <h3 className="text-2xl font-bold text-white font-['Outfit']">Your Vault</h3>
+         <p className="text-slate-500 text-sm font-medium">{urls.length} Links Tracked</p>
+      </div>
       
       <div className="glass-card rounded-3xl border border-white/5 overflow-hidden relative">
         {loading ? (
@@ -254,14 +308,13 @@ const Dashboard = () => {
             <p className="text-slate-500 max-w-sm">Use the magic bar above to forge your first shortened tracking link.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto pb-4">
             <table className="w-full text-left whitespace-nowrap">
               <thead>
                 <tr className="bg-slate-900/50 border-b border-slate-700/50">
                   <th className="px-6 py-5 text-xs font-bold text-slate-400 uppercase tracking-widest">Original URL</th>
                   <th className="px-6 py-5 text-xs font-bold text-slate-400 uppercase tracking-widest">Short Link</th>
                   <th className="px-4 py-5 text-xs font-bold text-slate-400 uppercase tracking-widest text-center">Status</th>
-                  <th className="px-6 py-5 text-xs font-bold text-slate-400 uppercase tracking-widest text-center">Date</th>
                   <th className="px-6 py-5 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Actions</th>
                 </tr>
               </thead>
@@ -274,7 +327,7 @@ const Dashboard = () => {
                     className={`hover:bg-white/[0.02] transition-colors duration-200 group animate-slide-up ${isExpired ? 'opacity-50' : ''}`}
                     style={{ animationDelay: `${i * 50}ms` }}
                   >
-                    <td className="px-6 py-5 max-w-[200px] truncate">
+                    <td className="px-6 py-5 max-w-[250px] truncate">
                       <div className="flex items-center">
                         <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center mr-3 border border-slate-700 flex-shrink-0">
                           <img src={`https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${url.originalUrl}&size=32`} className="w-4 h-4 opacity-70 rounded-sm" onError={(e) => e.target.style.display='none'} alt="" />
@@ -312,11 +365,16 @@ const Dashboard = () => {
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-5 text-slate-500 text-sm font-medium text-center">
-                      {new Date(url.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric'})}
-                    </td>
                     <td className="px-6 py-5 text-right">
                       <div className="flex justify-end space-x-2">
+                        <button 
+                          onClick={() => setEditingUrl(url)}
+                          className="p-2.5 bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 border border-transparent rounded-xl transition-all duration-300"
+                          title="Edit Destination URL"
+                        >
+                          <Edit3 size={18} />
+                        </button>
+                        
                         <button 
                           onClick={() => setActiveQr(url)}
                           className="p-2.5 bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 border border-transparent rounded-xl transition-all duration-300"
@@ -336,6 +394,16 @@ const Dashboard = () => {
                         >
                           {copySuccess === url.shortCode ? <Check size={18} /> : <Copy size={18} />}
                         </button>
+
+                        <a 
+                          href={`/stats/${url.shortCode}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="p-2.5 bg-slate-800 text-teal-400 hover:text-white hover:bg-teal-600 rounded-xl transition-all duration-300 shadow-sm hover:shadow-teal-500/20"
+                          title="Public Stats Page"
+                        >
+                          <Globe size={18} />
+                        </a>
                         
                         <Link 
                           to={`/analytics/${url._id}`}
@@ -363,7 +431,37 @@ const Dashboard = () => {
         )}
       </div>
 
-      {/* QR Code Modal Overlay */}
+      {editingUrl && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm" onClick={() => setEditingUrl(null)}></div>
+          <div className="glass-card rounded-3xl p-8 max-w-lg w-full relative z-10 animate-slide-up border border-indigo-500/30 shadow-2xl">
+            <button 
+              onClick={() => setEditingUrl(null)}
+              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <h3 className="text-xl font-bold text-white mb-6 font-['Outfit']">Edit Destination</h3>
+            
+            <form onSubmit={handleEdit} className="space-y-4">
+               <div>
+                  <label className="block text-sm font-semibold text-slate-400 mb-2 uppercase tracking-wider ml-1">
+                    New Target URL
+                  </label>
+                  <input
+                    type="url"
+                    value={editingUrl.originalUrl}
+                    onChange={(e) => setEditingUrl({...editingUrl, originalUrl: e.target.value})}
+                    className="glass-input h-14"
+                    required
+                  />
+               </div>
+               <button type="submit" className="btn-primary w-full h-14">Save Modification</button>
+            </form>
+          </div>
+        </div>
+      )}
+
       {activeQr && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm" onClick={() => setActiveQr(null)}></div>

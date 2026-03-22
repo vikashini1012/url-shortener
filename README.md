@@ -1,19 +1,23 @@
-# URL Shortener 
+# URL Shortener
+
 A premium, full-stack web application where authenticated users can forge magic tracking links with enterprise-level settings. Features include custom aliases, deep-dive graphical analytics, password-protection, self-destructing expiration dates, and automatically generated high-res QR codes.
 
 ## 1. Project Overview
 This project takes traditional URL shortening to the next level. Beyond simple redirects, users can generate encrypted short links that are protected by vault passwords, establish strict timeframe expirations, and instantly bridge physical to digital with a click-to-download SVG/PNG Quick Response (QR) code. Designed natively with a modern, glassmorphic dark-theme using Tailwind CSS v4 to look beautifully crisp on all devices.
 
 ## 2. Elite Features List
-- **Advanced Link Settings (`New`)**: 
+- **Advanced Link Settings**: 
   - **Vault Passwords**: Encrypt your links with bcrypt secure passwords before redirecting. 
   - **Self-Destruct Dates**: Select an exact timestamp for your link to permanently 404.
   - **QR Code Generation**: Instantly scan short links with mobile devices or download high-resolution PNG copies directly from the dashboard.
-- **Glassmorphism UI (`New`)**: Fully revamped UI utilizing premium dark-mode radial gradients, CSS blur properties, Google Fonts ("Outfit" & "Plus Jakarta Sans"), and subtle micro-animations. 
+  - **Bulk URL Processing (`New`)**: Forget doing things one at a time. The powerful "Bulk Mode" allows users to paste multiple CSV/Newline delimited URLs and generate tracking links concurrently.
+  - **Dynamic Link Editing (`New`)**: Quickly re-route the destination URL dynamically without losing your hard-earned clicks/metrics.
+- **Deep Telemetry Analytics (`New`)**: 
+  - Tracks raw timestamps, click totals, and **Geolocation/Device Architecture Analytics (Mobile vs Desktop)** logic parsed directly from request headers.
+  - Interactive Daily Pulse charts (last 7-days).
+  - Dedicated **Public Transparency Stats** pages for non-authenticated link monitoring.
+- **Glassmorphism UI**: Fully revamped UI utilizing premium dark-mode radial gradients, CSS blur properties, Google Fonts ("Outfit" & "Plus Jakarta Sans"), and subtle micro-animations. 
 - **Authentication**: User signup and login with secure JWT-based stateless protection.
-- **Redirection Logic**: Secure HTTP routing to ensure redirects leave the host gracefully.
-- **Deep Analytics**: Click-counters, 'last visited' timestamps, and chronological timeline logs of all interaction data.
-- **Interactive Charting**: Line-graph activity over the previous rolling 7 days leveraging Chart.js parameters with neon stylistic custom overrides.
 
 ## 3. Tech Stack
 **Frontend:**

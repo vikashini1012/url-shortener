@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import Analytics from './pages/Analytics';
 import Expired from './pages/Expired';
 import Unlock from './pages/Unlock';
+import PublicStats from './pages/PublicStats';
 
 // PrivateRoute component
 const PrivateRoute = ({ children }) => {
@@ -42,6 +43,7 @@ function App() {
             />
             <Route path="/expired" element={<Expired />} />
             <Route path="/unlock/:code" element={<Unlock />} />
+            <Route path="/stats/:code" element={<PublicStats />} />
             {/* Catch all route - basically 404 */}
             <Route path="*" element={<Navigate to="/dashboard" />} />
           </Routes>
