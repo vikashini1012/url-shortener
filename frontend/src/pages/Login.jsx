@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
-import { Link as LinkIcon } from 'lucide-react';
+import { Link as LinkIcon, Mail, Lock, LogIn, ArrowRight } from 'lucide-react';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -36,88 +36,97 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg border border-gray-100">
-        <div className="text-center">
-          <LinkIcon className="mx-auto h-12 w-12 text-indigo-600" />
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            Welcome Back
+    <div className="min-h-[85vh] flex items-center justify-center p-4">
+      <div className="w-full max-w-[440px] animate-slide-up">
+        <div className="text-center mb-10">
+          <div className="inline-block relative">
+            <div className="absolute inset-0 bg-indigo-500 blur-2xl opacity-30 rounded-full mix-blend-screen"></div>
+            <div className="bg-slate-800/80 p-4 rounded-2xl border border-white/5 relative shadow-2xl backdrop-blur-xl">
+              <LinkIcon className="h-10 w-10 text-indigo-400" />
+            </div>
+          </div>
+          <h2 className="mt-8 text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400 font-['Outfit']">
+            Welcome back
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Sign in to manage your shortened URLs
+          <p className="mt-3 text-slate-400 text-lg">
+            Login to manage your premium links
           </p>
         </div>
         
-        <form className="mt-8 space-y-6" onSubmit={onSubmit}>
-          {error && (
-            <div className="bg-red-50 text-red-700 p-3 rounded-md text-sm text-center border border-red-200">
-              {error}
-            </div>
-          )}
-          
-          <div className="space-y-4 rounded-md shadow-sm">
-            <div>
-              <label htmlFor="email-address" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="appearance-none rounded relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-                value={email}
-                onChange={onChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="appearance-none rounded relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-                value={password}
-                onChange={onChange}
-              />
-            </div>
-          </div>
+        <div className="glass-card rounded-2xl p-8 relative overflow-hidden">
+          {/* Decorative glowing orb */}
+          <div className="absolute -top-32 -left-32 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute -bottom-32 -right-32 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-          <div>
+          <form className="space-y-6 relative" onSubmit={onSubmit}>
+            {error && (
+              <div className="bg-rose-500/10 text-rose-400 p-4 rounded-xl text-sm text-center border border-rose-500/20 flex items-center justify-center space-x-2 animate-slide-up">
+                <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></div>
+                <span>{error}</span>
+              </div>
+            )}
+            
+            <div className="space-y-5">
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-indigo-400 transition-colors">
+                  <Mail className="h-5 w-5" />
+                </div>
+                <input
+                  name="email"
+                  type="email"
+                  required
+                  className="glass-input pl-12"
+                  placeholder="Email address"
+                  value={email}
+                  onChange={onChange}
+                />
+              </div>
+              
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-indigo-400 transition-colors">
+                  <Lock className="h-5 w-5" />
+                </div>
+                <input
+                  name="password"
+                  type="password"
+                  required
+                  className="glass-input pl-12 pr-4"
+                  placeholder="Password"
+                  value={password}
+                  onChange={onChange}
+                />
+              </div>
+            </div>
+
             <button
               type="submit"
               disabled={loading}
-              className={`group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
-                loading ? 'bg-indigo-400' : 'bg-indigo-600 hover:bg-indigo-700'
-              } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors`}
+              className="btn-primary w-full group py-3.5 mt-2"
             >
               {loading ? (
-                <span className="flex items-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <span className="flex items-center space-x-3">
+                  <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Signing in...
+                  <span>Authenticating...</span>
                 </span>
               ) : (
-                'Sign in'
+                <span className="flex items-center justify-center space-x-2">
+                  <span className="text-base tracking-wide">Sign in to account</span>
+                  <LogIn className="h-5 w-5 opacity-70 group-hover:translate-x-1 transition-transform" />
+                </span>
               )}
             </button>
-          </div>
-        </form>
+          </form>
+        </div>
         
-        <div className="text-center mt-4">
-          <p className="text-sm text-gray-600">
+        <div className="text-center mt-8">
+          <p className="text-slate-400">
             Don't have an account?{' '}
-            <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
-              Sign up now
+            <Link to="/register" className="font-semibold text-indigo-400 hover:text-indigo-300 transition-colors inline-flex items-center group">
+              Create one now
+              <ArrowRight className="ml-1.5 h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
             </Link>
           </p>
         </div>

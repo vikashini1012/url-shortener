@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../services/api';
-import { ArrowLeft, Clock, MousePointerClick, Calendar } from 'lucide-react';
+import { ArrowLeft, Clock, MousePointerClick, CalendarDays, Activity } from 'lucide-react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,6 +11,7 @@ import {
   Title,
   Tooltip,
   Legend,
+  Filler
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 
@@ -21,7 +22,8 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );
 
 const Analytics = () => {
@@ -47,26 +49,31 @@ const Analytics = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      <div className="h-[70vh] flex flex-col items-center justify-center space-y-4">
+        <div className="relative w-16 h-16">
+          <div className="absolute inset-0 rounded-full border-4 border-indigo-500/20"></div>
+          <div className="absolute inset-0 rounded-full border-4 border-t-indigo-500 animate-spin"></div>
+        </div>
+        <p className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 font-bold tracking-widest uppercase text-sm animate-pulse">Running Deep Scan...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex justify-center py-20">
-        <div className="bg-red-50 text-red-700 p-6 rounded-lg max-w-md w-full text-center border border-red-200">
-          <p className="text-lg font-medium mb-4">{error}</p>
-          <Link to="/dashboard" className="text-indigo-600 hover:text-indigo-800 font-medium inline-flex items-center">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
+      <div className="h-[70vh] flex items-center justify-center">
+        <div className="glass-card rounded-2xl p-10 max-w-md w-full text-center border-rose-500/20 relative overflow-hidden">
+          <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-rose-500 to-transparent"></div>
+          <p className="text-xl font-bold mb-6 text-rose-300">{error}</p>
+          <Link to="/dashboard" className="btn-primary w-full shadow-rose-500/20 from-rose-500 to-orange-500">
+            <ArrowLeft className="mr-2 h-5 w-5" /> Return to Vault
           </Link>
         </div>
       </div>
     );
   }
 
-  // Prepare data for Daily Clicks Chart (Bonus feature)
+  // Prepare data for Daily Clicks Chart
   const processChartData = () => {
     if (!analytics?.recentVisits || analytics.recentVisits.length === 0) return null;
     
@@ -89,15 +96,21 @@ const Analytics = () => {
 
     return {
       labels: last7Days.map(date => {
-        const [, m, d] = date.split('-');
-        return `${m}/${d}`;
+        const d = new Date(date);
+        return d.toLocaleDateString('en-US', { weekday: 'short' });
       }),
       datasets: [
         {
-          label: 'Clicks per Day',
+          label: 'Engagements',
           data: last7Days.map(date => clicksPerDay[date]),
-          borderColor: 'rgb(79, 70, 229)',
-          backgroundColor: 'rgba(79, 70, 229, 0.1)',
+          borderColor: '#818cf8', // indigo-400
+          backgroundColor: 'rgba(99, 102, 241, 0.1)', // indigo-500
+          borderWidth: 3,
+          pointBackgroundColor: '#1e1b4b',
+          pointBorderColor: '#818cf8',
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
           fill: true,
           tension: 0.4,
         },
@@ -108,97 +121,162 @@ const Analytics = () => {
   const chartData = processChartData();
 
   return (
-    <div className="max-w-4xl mx-auto py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <Link 
-          to="/dashboard" 
-          className="inline-flex items-center text-gray-600 hover:text-indigo-600 transition-colors font-medium"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Dashboard
-        </Link>
-        <h1 className="text-2xl font-bold text-gray-800">Analytics Overview</h1>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center space-x-4">
-          <div className="p-3 rounded-full bg-indigo-50 text-indigo-600">
-            <MousePointerClick className="h-8 w-8" />
-          </div>
+    <div className="max-w-6xl mx-auto py-8 animate-slide-up">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div className="flex items-center space-x-4">
+          <Link 
+            to="/dashboard" 
+            className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 transition-all duration-300"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
           <div>
-            <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Clicks</p>
-            <p className="text-3xl font-bold text-gray-900">{analytics.totalClicks}</p>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center space-x-4">
-          <div className="p-3 rounded-full bg-emerald-50 text-emerald-600">
-            <Clock className="h-8 w-8" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Last Visited</p>
-            <p className="text-lg font-bold text-gray-900 truncate" title={analytics.lastVisited ? new Date(analytics.lastVisited).toLocaleString() : 'Never'}>
-              {analytics.lastVisited ? new Date(analytics.lastVisited).toLocaleDateString() : 'Never'}
-            </p>
+            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400 font-['Outfit']">Deep Analytics</h1>
+            <p className="text-slate-500 text-sm font-medium tracking-wide">Command Center & Metrics</p>
           </div>
         </div>
         
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center space-x-4">
-          <div className="p-3 rounded-full bg-amber-50 text-amber-600">
-            <Calendar className="h-8 w-8" />
+        <div className="hidden md:flex items-center space-x-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-semibold">
+          <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+          <span>Live Telemetry Active</span>
+        </div>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="glass-card rounded-3xl p-6 relative overflow-hidden group">
+          <div className="absolute -right-6 -top-6 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-colors"></div>
+          <div className="flex items-start justify-between relative z-10">
+            <div>
+              <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Total Impact</p>
+              <h3 className="text-4xl font-['Outfit'] font-bold text-white">{analytics.totalClicks}</h3>
+            </div>
+            <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+              <MousePointerClick className="h-6 w-6" />
+            </div>
           </div>
-          <div>
-            <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Recent Visits</p>
-            <p className="text-3xl font-bold text-gray-900">{analytics.recentVisits?.length || 0}</p>
+        </div>
+
+        <div className="glass-card rounded-3xl p-6 relative overflow-hidden group">
+          <div className="absolute -right-6 -top-6 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-colors"></div>
+          <div className="flex items-start justify-between relative z-10">
+            <div>
+              <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Last Interaction</p>
+              <h3 className="text-2xl font-['Outfit'] font-bold text-slate-200 mt-2 truncate max-w-[150px]" title={analytics.lastVisited ? new Date(analytics.lastVisited).toLocaleString() : 'Never'}>
+                {analytics.lastVisited ? new Date(analytics.lastVisited).toLocaleDateString() : 'Never'}
+              </h3>
+            </div>
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+              <Clock className="h-6 w-6" />
+            </div>
+          </div>
+        </div>
+        
+        <div className="glass-card rounded-3xl p-6 relative overflow-hidden group">
+          <div className="absolute -right-6 -top-6 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl group-hover:bg-purple-500/20 transition-colors"></div>
+          <div className="flex items-start justify-between relative z-10">
+            <div>
+              <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Recent Heat</p>
+              <h3 className="text-4xl font-['Outfit'] font-bold text-white">{analytics.recentVisits?.length || 0}</h3>
+            </div>
+            <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.2)]">
+              <CalendarDays className="h-6 w-6" />
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {chartData && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 className="text-lg font-bold text-gray-800 mb-6">Activity (Last 7 Days)</h3>
-            <div className="h-64">
-              <Line 
-                data={chartData} 
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: { legend: { display: false } },
-                  scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
-                }} 
-              />
-            </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Chart Area */}
+        <div className="glass-card rounded-3xl p-8 lg:col-span-2 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-slate-900/50 pointer-events-none"></div>
+          <div className="relative z-10 h-full flex flex-col">
+            <h3 className="text-xl font-bold text-white mb-6 font-['Outfit'] flex items-center">
+              <Activity className="mr-2 h-6 w-6 text-indigo-400" />
+              Pulse (7 Days)
+            </h3>
+            
+            {chartData ? (
+              <div className="flex-grow w-full min-h-[300px]">
+                <Line 
+                  data={chartData} 
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                      legend: { display: false },
+                      tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        titleColor: '#f1f5f9',
+                        bodyColor: '#818cf8',
+                        borderColor: 'rgba(99, 102, 241, 0.3)',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: false,
+                        titleFont: { family: "'Outfit', sans-serif", size: 14 },
+                        bodyFont: { family: "'Plus Jakarta Sans', sans-serif", size: 16, weight: 'bold' }
+                      }
+                    },
+                    scales: { 
+                      y: { 
+                        beginAtZero: true, 
+                        grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
+                        ticks: { color: '#64748b', font: { family: "'Plus Jakarta Sans'" }, precision: 0, padding: 10 }
+                      },
+                      x: {
+                        grid: { display: false, drawBorder: false },
+                        ticks: { color: '#64748b', font: { family: "'Plus Jakarta Sans'" }, padding: 10 }
+                      }
+                    },
+                    interaction: {
+                      intersect: false,
+                      mode: 'index',
+                    },
+                  }} 
+                />
+              </div>
+            ) : (
+              <div className="flex-grow flex flex-col items-center justify-center border-2 border-dashed border-slate-700/50 rounded-2xl bg-slate-800/20">
+                <Activity className="h-12 w-12 text-slate-600 mb-4" />
+                <p className="text-slate-500 font-medium">Insufficient tracking data</p>
+              </div>
+            )}
           </div>
-        )}
+        </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 lg:col-span-1">
-          <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center">
-            <Clock className="mr-2 h-5 w-5 text-gray-400" />
-            Recent Visit Timeline
+        {/* Timeline Log */}
+        <div className="glass-card rounded-3xl p-6 lg:col-span-1 flex flex-col max-h-[440px]">
+          <h3 className="text-lg font-bold text-white mb-6 font-['Outfit'] flex items-center px-2">
+            <Clock className="mr-2 h-5 w-5 text-purple-400" />
+            Raw Telemetry Log
           </h3>
           
-          {analytics.recentVisits && analytics.recentVisits.length > 0 ? (
-            <div className="space-y-4">
-              {analytics.recentVisits.map((visit, index) => (
-                <div key={index} className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 border border-gray-100">
-                  <div className="mt-0.5 w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0"></div>
+          <div className="flex-grow overflow-y-auto pr-2 space-y-3 custom-scrollbar">
+            {analytics.recentVisits && analytics.recentVisits.length > 0 ? (
+              analytics.recentVisits.map((visit, index) => (
+                <div key={index} className="flex items-center p-4 rounded-2xl bg-slate-800/50 border border-slate-700/50 hover:bg-slate-700/50 transition-colors group">
+                  <div className="w-10 h-10 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center mr-4 group-hover:border-indigo-500/50 transition-colors shrink-0">
+                    <div className="w-2.5 h-2.5 rounded-full bg-indigo-500 group-hover:shadow-[0_0_10px_rgba(99,102,241,0.8)] transition-all"></div>
+                  </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      {new Date(visit.timestamp).toLocaleDateString()}
+                    <p className="text-sm font-bold text-slate-200">
+                      {new Date(visit.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric'})}
                     </p>
-                    <p className="text-xs text-gray-500">
-                      {new Date(visit.timestamp).toLocaleTimeString()}
+                    <p className="text-xs text-indigo-400 font-medium mt-0.5 tracking-wide">
+                      {new Date(visit.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute:'2-digit', second:'2-digit' })}
                     </p>
                   </div>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-10 bg-gray-50 rounded-lg border border-gray-100 border-dashed">
-              <p className="text-gray-500">No recent visits tracked yet.</p>
-            </div>
-          )}
+              ))
+            ) : (
+              <div className="text-center py-12 px-4 h-full flex flex-col justify-center items-center">
+                <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mb-4">
+                  <Clock className="h-8 w-8 text-slate-600" />
+                </div>
+                <p className="text-slate-500 font-medium">Waiting for signals...</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
