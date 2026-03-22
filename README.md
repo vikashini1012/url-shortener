@@ -1,43 +1,41 @@
-# URL Shortener with Analytics
+# URL Shortener with Advanced Analytics
 
-A full-stack web application where authenticated users can shorten URLs, manage their custom links, and view analytics such as total clicks and recent visit timestamps.
+A premium, full-stack web application where authenticated users can forge magic tracking links with enterprise-level settings. Features include custom aliases, deep-dive graphical analytics, password-protection, self-destructing expiration dates, and automatically generated high-res QR codes.
 
 ## 1. Project Overview
-This project provides a complete URL shortening service. Users can register for an account, paste long URLs, and generate unique short links. They can optionally provide a custom alias for their short links. The application tracks every click on the generated links and presents comprehensive analytics in a dedicated dashboard and graphical charts.
+This project takes traditional URL shortening to the next level. Beyond simple redirects, users can generate encrypted short links that are protected by vault passwords, establish strict timeframe expirations, and instantly bridge physical to digital with a click-to-download SVG/PNG Quick Response (QR) code. Designed natively with a modern, glassmorphic dark-theme using Tailwind CSS v4 to look beautifully crisp on all devices.
 
-## 2. Features List
-- **Authentication**: User signup and login with JWT-based protection.
-- **Protected Routes**: Users can only see and manage their own links.
-- **URL Shortening**: Automatic generation of short links via `nanoid` or customizable aliases provided by the user.
-- **Redirection**: Fast redirect from the short URL to the original long URL.
-- **Analytics Tracking**: Total clicks, last visited timestamp, and history of all visits tracked in the database.
-- **Dashboard UI**: Display of all the user's links, along with quick actions to copy to clipboard, delete links, or view analytics.
-- **Analytics UI**: Detailed view including a chart to visualize clicks over the last 7 days.
-- **Responsive Design**: Tailored experiences for both desktop and mobile using Tailwind CSS.
+## 2. Elite Features List
+- **Advanced Link Settings (`New`)**: 
+  - **Vault Passwords**: Encrypt your links with bcrypt secure passwords before redirecting. 
+  - **Self-Destruct Dates**: Select an exact timestamp for your link to permanently 404.
+  - **QR Code Generation**: Instantly scan short links with mobile devices or download high-resolution PNG copies directly from the dashboard.
+- **Glassmorphism UI (`New`)**: Fully revamped UI utilizing premium dark-mode radial gradients, CSS blur properties, Google Fonts ("Outfit" & "Plus Jakarta Sans"), and subtle micro-animations. 
+- **Authentication**: User signup and login with secure JWT-based stateless protection.
+- **Redirection Logic**: Secure HTTP routing to ensure redirects leave the host gracefully.
+- **Deep Analytics**: Click-counters, 'last visited' timestamps, and chronological timeline logs of all interaction data.
+- **Interactive Charting**: Line-graph activity over the previous rolling 7 days leveraging Chart.js parameters with neon stylistic custom overrides.
 
 ## 3. Tech Stack
 **Frontend:**
-- React (Vite setup)
-- Functional Components & Hooks
-- Axios (for API calls)
-- Tailwind CSS
-- React Router DOM
-- Chart.js & react-chartjs-2 (for analytics graphs)
-- Lucide React (for icons)
+- React (Vite environment)
+- Tailwind CSS v4 (with `@tailwindcss/vite` plugin)
+- lucide-react (Premium iconography)
+- Chart.js & react-chartjs-2 
+- qrcode.react (On-the-fly QR generation)
 
 **Backend:**
 - Node.js & Express.js
 - MongoDB & Mongoose
 - JSON Web Token (JWT)
-- bcryptjs (for password hashing)
-- nanoid (for short code generation)
-- dotenv (for environment variables)
+- bcryptjs (Encryption hashes for Users *and* URL Passwords)
+- nanoid (Cryptographically secure short strings)
 
 ## 4. Setup Instructions
 
 ### Prerequisites
 - Node.js installed (v16 or higher recommended)
-- MongoDB instance (local or Atlas)
+- MongoDB instance (local server running on default `27017` or MongoDB Atlas map)
 
 ### Step-by-Step
 1. **Clone the repository:**
@@ -51,7 +49,7 @@ This project provides a complete URL shortening service. Users can register for 
    cd backend
    npm install
    ```
-   *Create a `.env` file in the `backend/` directory referencing the sample below.*
+   *Create a `.env` file referencing the sample below. Optionally, seed your database using `npm run seed` for immediate mock-data interaction.*
    ```bash
    npm start
    ```
@@ -61,13 +59,13 @@ This project provides a complete URL shortening service. Users can register for 
    cd ../frontend
    npm install
    ```
-   *Create a `.env` file in the `frontend/` directory referencing the sample below.*
+   *Create a `.env` file referencing the sample below to bind Vite to your network IP.*
    ```bash
    npm run dev
    ```
 
-4. **Access the application:**
-   Open [http://localhost:5173](http://localhost:5173) in your browser.
+4. **Access the Application (For QR Scanning Capability):**
+   Open your Network IPv4 Address provided by Vite (e.g., `http://192.168.X.X:5173`) in your browser. This ensures that when you generate a QR code on your monitor and scan it with your phone, it correctly tunnels to your computer's hosted backend.
 
 ## 5. Environment Variables
 **Backend (`backend/.env`):**
@@ -75,82 +73,58 @@ This project provides a complete URL shortening service. Users can register for 
 PORT=5000
 MONGODB_URI=mongodb://localhost:27017/url-shortener
 JWT_SECRET=supersecretjwtkey
-FRONTEND_URL=http://localhost:5173
+FRONTEND_URL=http://<YOUR_IPV4>:5173
 ```
 
 **Frontend (`frontend/.env`):**
 ```
-VITE_API_URL=http://localhost:5000/api
+VITE_API_URL=http://<YOUR_IPV4>:5000/api
 ```
 
 ## 6. API Endpoints
 
 ### Auth
-- `POST /api/auth/register` - Register a new user
-- `POST /api/auth/login` - Authenticate an existing user and return a token
+- `POST /api/auth/register` - Create account logic.
+- `POST /api/auth/login` - Authenticate existing users and disburse token.
 
 ### URLs
-- `POST /api/url/shorten` - Create a new shortened URL
-- `GET /api/url/user` - Get all URLs created by the authenticated user
-- `GET /api/url/:code` - Redirect to the original URL and track the click (Public)
-- `DELETE /api/url/:id` - Delete a URL
-- `GET /api/url/:id/analytics` - Get detailed analytics for a URL
+- `POST /api/url/shorten` - Forge new URLs (**Accepts: `originalUrl`, `alias`, `password`, `expiresAt`**).
+- `GET /api/url/user` - Retrieves the authenticated user's private vault collection context.
+- `GET /api/url/:code` - Intercepts clicks. Tracks analytics natively, checks for timeouts/passwords, and fires 301 redirects recursively.
+- `POST /api/url/unlock/:code` - Intermediary endpoint allowing React to process password prompts against hashed credentials. 
+- `DELETE /api/url/:id` - Obliterates shortlinks.
+- `GET /api/url/:id/analytics` - Gathers deep telemetry payloads for visualizations.
 
 ## 7. Folder Structure
 ```
 root/
 ├── backend/
-│   ├── controllers/      # Future separation of controller logic
-│   ├── models/           # Mongoose schemas (User, Url)
+│   ├── models/           # Mongoose schemas (User, Url overrides with expiry)
 │   ├── routes/           # Express routes (auth, url)
-│   ├── middleware/       # Custom middleware (JWT auth check)
-│   ├── utils/            # Shared database/helper code
-│   ├── .env
-│   ├── package.json
-│   └── server.js
+│   ├── middleware/       # Custom middleware (JWT pipeline verifications)
+│   ├── seed.js           # Automated Mock-Data generator
+│   └── server.js         # Entry node map
 ├── frontend/
 │   ├── src/
-│   │   ├── components/   # Shared UI (Navbar)
-│   │   ├── pages/        # Route components (Login, Register, Dashboard, Analytics)
-│   │   ├── services/     # Axios configs
-│   │   ├── App.jsx
+│   │   ├── components/   # Modular glassmorphism Navbar
+│   │   ├── pages/        # Dashboard, Analytics, Login, Register, Expired, Unlock
+│   │   ├── services/     # Axios configs intercepting JSON
+│   │   ├── App.jsx       # Browser routing and wrappers
 │   │   ├── main.jsx
-│   │   └── index.css     # Global styles & Tailwind injections
-│   ├── .env
-│   ├── tailwind.config.js
-│   ├── postcss.config.js
-│   ├── vite.config.js
+│   │   └── index.css     # Global aesthetics injected with Tailwind
+│   ├── vite.config.js    # Customized plugin arrays for V4 tooling
 │   └── package.json
 └── README.md
 ```
 
-## 8. Assumptions Made
-- Mongoose uses standard basic schema models with simple `Ref` for ownership. Database scaling (e.g., separating massive hit logs) isn't the primary goal, so `visitHistory` array is used but kept simple.
-- Deletions are hard deletions.
-- The UI handles errors gracefully provided by standard axios configurations intercepting network boundaries.
+## 8. Demo Instructions
 
-## 9. AI Planning Document
-1. Initialize Mono-repo with frontend & backend workspaces.
-2. Build backend APIs: Models (Users, URLs), routing, database connectivity, middleware.
-3. Establish robust authentication flow utilizing bcrypt & JSON Web Tokens.
-4. Integrate URL validation & random short-code generation (nanoid). Setup the logic to track IP/date on the redirect GET mechanism.
-5. Create React frontend application utilizing Vite.
-6. Install UI frameworks such as TailwindCSS.
-7. Build pages: Clean login / register pages, comprehensive visual Dashboard for handling URLs, and dedicated Analytics components rendering metrics & Chart.js instances.
-
-## 10. Architecture Explanation
-The architecture relies on a standard REST API pattern. The Express app acts as a data provider, communicating with a MongoDB database hosted locally or in the cloud. We apply an object-mapping paradigm using Mongoose for easy validations. Protected Routes use a stateless mechanism via JWT attached by frontend Axios interceptors, guaranteeing the server can identify ownership quickly without session cache requirements. The React UI is completely uncoupled and fetches its data strictly utilizing asynchronous XHR calls. When users click a short link, they hit the Express `/:code` endpoint, which intercepts the request, increments analytics values within a transaction/write scale logic, and issues an immediate 302/301 Redirect to the browser.
-
-## 11. Demo Instructions
-
-### Recording your Loom/YouTube Demo
-1. **Start Screen Recording:** Make sure to capture your full browser window showing both the URL and the application.
-2. **Introduction (0s - 15s):** Briefly introduce yourself and what your application is (A Full-stack URL shortener).
-3. **Authentication Showcase (15s - 45s):** Show creating a new account (Registration), and subsequently logging out and logging back in (Login).
-4. **URL Shortening (45s - 1m 15s):** Navigate to the dashboard, input a long URL, and an optional custom alias. Click "Shorten" and show the newly created link in the dashboard view.
-5. **Redirection (1m 15s - 1m 30s):** Copy the short link to your clipboard and open it in a new incognito window/tab. Show that it flawlessly redirects to the original page.
-6. **Analytics Feature (1m 30s - 2m 00s):** Returning to your dashboard dashboard, either refresh or direct yourself to the unique Analytics section of that link. Demonstrate the captured click from the previous step on the UI and chart.
-7. **Conclusion & Code Review (2m 00s - 3m 00s):** Briefly show the codebase outlining your MVC structure, API routing, database schema, and UI layouts to conclude. Upload your video!
+### Recording your Loom/YouTube Hackathon Pitch
+1. **The Hook (0s - 15s):** Start strong. Introduce yourself and explain your project stands above traditional URL shorteners because of enterprise features (Encryption, Expiry dates, physical QR bridges).
+2. **Dashboard & Auth (15s - 45s):** Briefly show the beautiful glassmorphism UI login system. Load the vault dashboard showing existing populated links to show scalable state logic. 
+3. **Advanced Forging (45s - 1m 30s):** Create a long URL. Specifically, toggle **"Advanced Settings"**. Assign it a custom alias along with a definitive Password and an Expiration Date. Create the link.
+4. **The Security Demo (1m 30s - 2m 15s):** Click the new link itself! Prove that you are seamlessly rerouted to your frontend `Unlock` page shield. Type the password in real-time, click submit, and smoothly watch the React transition fade out into the true original destination!
+5. **Analytics & QR (2m 15s - 3m 00s):** Jump to your Analytics deep-dive to show the Neon Chart.js telemetry logging. Lastly, return to the dashboard, hit the QR code button, pull out your physical mobile phone, and scan it directly off your Loom presentation screen to prove your API connects across Local Area Networks!
 
 ---
-This project is a part of a hackathon run by https://katomaran.com
+This project is a proudly built submission for a hackathon run by https://katomaran.com
