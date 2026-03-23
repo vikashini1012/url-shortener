@@ -104,50 +104,50 @@ const PublicStats = () => {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div className="glass-card p-5 rounded-2xl flex flex-col items-center justify-center relative overflow-hidden">
-          <MousePointerClick className="text-indigo-400 mb-2" size={24}/>
+          <MousePointerClick className="text-indigo-400 mb-2" size={24} />
           <p className="text-3xl font-bold text-white font-['Outfit']">{analytics.totalClicks}</p>
           <p className="text-xs text-slate-500 font-bold uppercase mt-1 tracking-widest">Total Impact</p>
         </div>
         <div className="glass-card p-5 rounded-2xl flex flex-col items-center justify-center relative overflow-hidden">
-          <CalendarDays className="text-purple-400 mb-2" size={24}/>
+          <CalendarDays className="text-purple-400 mb-2" size={24} />
           <p className="text-xl font-bold text-slate-200 mt-1">{new Date(analytics.createdAt).toLocaleDateString()}</p>
           <p className="text-xs text-slate-500 font-bold uppercase mt-1 tracking-widest">Created On</p>
         </div>
         <div className="glass-card p-5 rounded-2xl flex flex-col items-center justify-center relative overflow-hidden">
-          <Smartphone className="text-emerald-400 mb-2" size={24}/>
+          <Smartphone className="text-emerald-400 mb-2" size={24} />
           <p className="text-3xl font-bold text-white font-['Outfit']">{analytics.devices?.mobile || 0}</p>
           <p className="text-xs text-slate-500 font-bold uppercase mt-1 tracking-widest">Mobile Traffic</p>
         </div>
         <div className="glass-card p-5 rounded-2xl flex flex-col items-center justify-center relative overflow-hidden">
-          <Monitor className="text-teal-400 mb-2" size={24}/>
+          <Monitor className="text-teal-400 mb-2" size={24} />
           <p className="text-3xl font-bold text-white font-['Outfit']">{analytics.devices?.desktop || 0}</p>
           <p className="text-xs text-slate-500 font-bold uppercase mt-1 tracking-widest">Desktop Traffic</p>
         </div>
       </div>
 
       <div className="glass-card rounded-3xl p-8 relative overflow-hidden">
-          <h3 className="text-xl font-bold text-white mb-6 font-['Outfit'] flex items-center">
-            <Activity className="mr-2 h-6 w-6 text-indigo-400" /> Pulse (7 Days)
-          </h3>
-          {chartData ? (
-             <div className="w-full h-[300px]">
-                <Line 
-                  data={chartData} 
-                  options={{
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { 
-                      y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#64748b', precision: 0 } },
-                      x: { grid: { display: false }, ticks: { color: '#64748b' } }
-                    }
-                  }} 
-                />
-             </div>
-          ) : (
-            <div className="h-[200px] flex flex-col items-center justify-center bg-slate-800/20 rounded-xl">
-               <p className="text-slate-500">Insufficient tracking data</p>
-            </div>
-          )}
+        <h3 className="text-xl font-bold text-white mb-6 font-['Outfit'] flex items-center">
+          <Activity className="mr-2 h-6 w-6 text-indigo-400" /> Pulse (7 Days)
+        </h3>
+        {chartData ? (
+          <div className="w-full h-[300px]">
+            <Line
+              data={chartData}
+              options={{
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                  y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#64748b', precision: 0 } },
+                  x: { grid: { display: false }, ticks: { color: '#64748b' } }
+                }
+              }}
+            />
+          </div>
+        ) : (
+          <div className="h-[200px] flex flex-col items-center justify-center bg-slate-800/20 rounded-xl">
+            <p className="text-slate-500">Insufficient tracking data</p>
+          </div>
+        )}
       </div>
     </div>
   );
