@@ -5,6 +5,8 @@ A premium, full-stack web application where authenticated users can forge magic 
 ## 1. Project Overview
 This project takes traditional URL shortening to the next level. Beyond simple redirects, users can generate encrypted short links that are protected by vault passwords, establish strict timeframe expirations, and instantly bridge physical to digital with a click-to-download SVG/PNG Quick Response (QR) code. Designed natively with a modern, glassmorphic dark-theme using Tailwind CSS v4 to look beautifully crisp on all devices.
 
+DEMO LINK : https://www.loom.com/share/1284dc7b5e8d4705aa930ce2fdb0ca4f
+
 ## 2. Elite Features List
 - **Advanced Link Settings**: 
   - **Vault Passwords**: Encrypt your links with bcrypt secure passwords before redirecting. 
